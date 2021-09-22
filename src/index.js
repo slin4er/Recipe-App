@@ -2,9 +2,9 @@
 const express = require('express')
 require('./db/mongoose')
 const app = express()
-const userRouter = require('./ruoters/userRouter')
-const recipeRouter = require('./ruoters/recipeRouter')
-const commentRouter = require('./ruoters/commentRouter')
+const userRouter = require('./routers/userRouter')
+const recipeRouter = require('./routers/recipeRouter')
+const commentRouter = require('./routers/commentRouter')
 
 app.set('port', process.env.PORT || 3000)
 app.use(express.json())

@@ -77,43 +77,25 @@ router.post('/like/recipe/:id', auth, async (req, res) => {
             throw new Error('Такого рецепта не существует!')
         }
 
-        const recipeExists = recipe.likedBy.filter((id) => id.equals(req.user._id))
+        const likeExists = recipe.likedBy.filter((id) => id.equals(req.user._id))
+        let liked = false
 
-        if(recipeExists.length === 0) {
+        if(likeExists.length === 0) {
             recipe.likes += 1
             recipe.likedBy = recipe.likedBy.concat(req.user._id)
-            await recipe.save()
-        }
-
-        res.status(200).send(recipe)
-
-    } catch (e) {
-        res.status(500).send(e.message)
-    }
-})
-
-//Dislike Recipe
-router.post('/dislike/recipe/:id', auth, async(req, res) => {
-    try{
-        const recipe = await Recipe.findById(req.params.id)
-    
-        if(!recipe) {
-            throw new Error('Такого рецепта не сущуствует!')
-        }
-        
-        const recipeExists = recipe.likedBy.filter((id) => id.equals(req.user._id))
-        if(recipeExists.length !== 0) {
+            liked = true
+        } else {
             if(recipe.likes > 0) {
                 recipe.likes -= 1
             }
             recipe.likedBy = recipe.likedBy.filter((id) => !id.equals(req.user._id))
-            await recipe.save()
         }
-    
-        res.status(200).send(recipe)
+
+        await recipe.save()
+        res.status(200).send({recipe, liked})
 
     } catch (e) {
-        res.status(500).send('Что то пошло не так!')
+        res.status(500).send(e.message)
     }
 })
 
