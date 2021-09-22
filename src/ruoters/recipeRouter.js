@@ -77,8 +77,13 @@ router.post('/like/recipe/:id', auth, async (req, res) => {
             throw new Error('Такого рецепта не существует!')
         }
 
-        recipe.likes += 1
-        await recipe.save()
+        const recipeExists = recipe.likedBy.filter((id) => id.equals(req.user._id))
+
+        if(recipeExists.length === 0) {
+            recipe.likes += 1
+            recipe.likedBy = recipe.likedBy.concat(req.user._id)
+            await recipe.save()
+        }
 
         res.status(200).send(recipe)
 
@@ -96,10 +101,14 @@ router.post('/dislike/recipe/:id', auth, async(req, res) => {
             throw new Error('Такого рецепта не сущуствует!')
         }
         
-        if(recipe.likes > 0) {
-            recipe.likes -= 1
+        const recipeExists = recipe.likedBy.filter((id) => id.equals(req.user._id))
+        if(recipeExists.length !== 0) {
+            if(recipe.likes > 0) {
+                recipe.likes -= 1
+            }
+            recipe.likedBy = recipe.likedBy.filter((id) => !id.equals(req.user._id))
+            await recipe.save()
         }
-        await recipe.save()
     
         res.status(200).send(recipe)
 

@@ -23,7 +23,11 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    favorite: [],
+    favorite: [{
+        recipeId:{
+            type: mongoose.Schema.Types.ObjectId
+        }
+    }],
     tokens: [{
         token: {
             type: String,
