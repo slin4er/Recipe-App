@@ -1,7 +1,10 @@
 const User = require('../models/user')
+const Comment = require('../models/comment')
+const Recipe = require('../models/recipe')
 const express = require('express')
 const auth = require('../middleware/auth')
 const router = express.Router()
+const bcrypt = require('bcryptjs')
 
 router.get('/', async( req, res) => {
     res.status(200).send('hello there!')
@@ -49,6 +52,25 @@ router.post('/user/logout', auth, async (req, res) => {
         req.user.tokens = []
         await req.user.save()
         res.status(200).send('Вы успешно вышли!')
+    } catch (e) {
+        res.status(500).send(e.message)
+    }
+})
+
+router.post('/delete/user', auth, async (req, res) => {
+    try{
+        const isMatch = await bcrypt.compare(req.body.password, req.user.password)
+
+        if(!isMatch) {
+            throw new Error('Пароли не совпадают!')
+        }
+
+        await Comment.deleteMany({ author: req.user._id })
+        await Recipe.deleteMany({ owner: req.user._id })
+        await User.deleteOne({ _id: req.user._id })
+
+        res.status(200).send('Успешно удалено!')
+
     } catch (e) {
         res.status(500).send(e.message)
     }

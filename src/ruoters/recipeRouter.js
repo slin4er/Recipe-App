@@ -23,14 +23,13 @@ router.post('/new/recipe', auth, async (req, res) => {
 
 router.get('/my/recipes', auth, async (req, res) => {
     try {
-        const recipes = await Recipe.find({})
-        const myRecipes = recipes.filter((owner) => owner.owner.equals(req.user._id))
+        const recipes = await Recipe.find({ owner: req.user._id})
 
-        if(!myRecipes.length) {
+        if(!recipes.length) {
             throw new Error('У вас нет рецептов')
         }
 
-        res.status(200).send(myRecipes)
+        res.status(200).send(recipes)
 
     }catch (e) {
         res.status(500).send(e.message)
