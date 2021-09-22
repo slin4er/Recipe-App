@@ -37,16 +37,6 @@ router.post('/user/signin', async(req, res) => {
     }
 })
 
-//All Users
-router.get('/users', auth, async (req, res) => {
-    try{
-        const users = await User.find({})
-        res.status(200).send(users)
-    } catch (e) {
-        res.status(500).send('Что то пошло не так!')
-    }
-})
-
 //User Logout
 router.post('/user/logout', auth, async (req, res) => {
     try{
@@ -75,6 +65,16 @@ router.post('/delete/user', auth, async (req, res) => {
 
     } catch (e) {
         res.status(500).send(e.message)
+    }
+})
+
+//All Users
+router.get('/users', auth, async (req, res) => {
+    try{
+        const users = await User.find({})
+        res.status(200).send(users)
+    } catch (e) {
+        res.status(500).send('Что то пошло не так!')
     }
 })
 
