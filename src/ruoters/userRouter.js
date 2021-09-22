@@ -6,10 +6,8 @@ const auth = require('../middleware/auth')
 const router = express.Router()
 const bcrypt = require('bcryptjs')
 
-router.get('/', async( req, res) => {
-    res.status(200).send('hello there!')
-})
-
+//req.user._id is the id of authenticated user whic is set in the header
+//New User
 router.post('/user/signup', async(req, res) => {
     try{
         const user = new User(req.body)
@@ -20,6 +18,7 @@ router.post('/user/signup', async(req, res) => {
     }
 })
 
+//User SignIn
 router.post('/user/signin', async(req, res) => {
     try {
         const user = await User.findByCredentials(req.body.login, req.body.password)
@@ -38,6 +37,7 @@ router.post('/user/signin', async(req, res) => {
     }
 })
 
+//All Users
 router.get('/users', auth, async (req, res) => {
     try{
         const users = await User.find({})
@@ -47,6 +47,7 @@ router.get('/users', auth, async (req, res) => {
     }
 })
 
+//User Logout
 router.post('/user/logout', auth, async (req, res) => {
     try{
         req.user.tokens = []
@@ -57,6 +58,7 @@ router.post('/user/logout', auth, async (req, res) => {
     }
 })
 
+//Delete User
 router.post('/delete/user', auth, async (req, res) => {
     try{
         const isMatch = await bcrypt.compare(req.body.password, req.user.password)
@@ -76,6 +78,7 @@ router.post('/delete/user', auth, async (req, res) => {
     }
 })
 
+//My profile
 router.get('/users/me', auth, async (req, res) => {
     res.status(200).send(req.user)
 })

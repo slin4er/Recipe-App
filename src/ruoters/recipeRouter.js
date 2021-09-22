@@ -4,6 +4,8 @@ const auth = require('../middleware/auth')
 const Recipe = require('../models/recipe')
 const Comment = require('../models/comment')
 
+//req.user._id is the id of authenticated user whic is set in the header
+//New Recipe
 router.post('/new/recipe', auth, async (req, res) => {
     try {
         const recipe = await new Recipe( {
@@ -21,21 +23,7 @@ router.post('/new/recipe', auth, async (req, res) => {
     }
 })
 
-router.get('/my/recipes', auth, async (req, res) => {
-    try {
-        const recipes = await Recipe.find({ owner: req.user._id})
-
-        if(!recipes.length) {
-            throw new Error('У вас нет рецептов')
-        }
-
-        res.status(200).send(recipes)
-
-    }catch (e) {
-        res.status(500).send(e.message)
-    }
-})
-
+//Delete Recipe
 router.post('/delete/recipe/:id', auth, async (req, res) => {
     try{
         const recipe = await Recipe.findById(req.params.id)
@@ -58,6 +46,8 @@ router.post('/delete/recipe/:id', auth, async (req, res) => {
     }
 })
 
+
+//Update Recipe
 router.post('/recipe/update/:id', auth, async (req, res) => {
     try {
         const recipe = await Recipe.findById(req.params.id)
@@ -78,6 +68,23 @@ router.post('/recipe/update/:id', auth, async (req, res) => {
     }
 })
 
+//Recipes of authenticated user
+router.get('/my/recipes', auth, async (req, res) => {
+    try {
+        const recipes = await Recipe.find({ owner: req.user._id})
+
+        if(!recipes.length) {
+            throw new Error('У вас нет рецептов')
+        }
+
+        res.status(200).send(recipes)
+
+    }catch (e) {
+        res.status(500).send(e.message)
+    }
+})
+
+//View of 1 selected recipe
 router.get('/recipe/view/:id', async (req, res) => {
     try{
         const recipe = await Recipe.findById(req.params.id)
@@ -94,6 +101,7 @@ router.get('/recipe/view/:id', async (req, res) => {
     }
 })
 
+//All recipes
 router.get('/all/recipes', async (req, res) => {
     try{
 

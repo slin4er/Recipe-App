@@ -1,8 +1,13 @@
+//Comment Router
+
 const express = require('express')
 const router = express.Router()
 const auth = require('../middleware/auth')
 const Comment = require('../models/comment')
 
+
+//New Comment
+//req.user._id is the id of authenticated user whic is set in the header
 router.post('/new/comment/:id', auth, async (req, res) => {
     try {
         const comment = await new Comment({
@@ -20,6 +25,7 @@ router.post('/new/comment/:id', auth, async (req, res) => {
     }
 })
 
+//Delete Post
 router.post('/delete/comment/:id', auth, async (req, res) => {
     try{
         const comment = await Comment.findById(req.params.id)
@@ -41,6 +47,7 @@ router.post('/delete/comment/:id', auth, async (req, res) => {
     }
 })
 
+//All Comments
 router.get('/all/comments', auth, async (req, res) => {
     try{
         const comments = await Comment.find({})
