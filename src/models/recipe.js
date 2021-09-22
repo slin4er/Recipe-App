@@ -14,13 +14,13 @@ const recipeSchema = new mongoose.Schema({
         required: true
     },
     comments: [],
+    likedBy: [{
+        type: mongoose.Schema.Types.ObjectId
+    }],
     likes: {
         type: Number,
         default: 0
     },
-    likedBy: [{
-        type: mongoose.Schema.Types.ObjectId
-    }],
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         required: true

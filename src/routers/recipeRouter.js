@@ -68,7 +68,7 @@ router.post('/recipe/update/:id', auth, async (req, res) => {
     }
 })
 
-//Add Like To Recipe
+//Either Like Or Dislike
 router.post('/like/recipe/:id', auth, async (req, res) => {
     try {
         const recipe = await Recipe.findById(req.params.id)
@@ -81,14 +81,12 @@ router.post('/like/recipe/:id', auth, async (req, res) => {
         let liked = false
 
         if(likeExists.length === 0) {
-            recipe.likes += 1
             recipe.likedBy = recipe.likedBy.concat(req.user._id)
+            recipe.likes = recipe.likedBy.length
             liked = true
         } else {
-            if(recipe.likes > 0) {
-                recipe.likes -= 1
-            }
             recipe.likedBy = recipe.likedBy.filter((id) => !id.equals(req.user._id))
+            recipe.likes = recipe.likedBy.length
         }
 
         await recipe.save()
