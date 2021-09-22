@@ -68,6 +68,46 @@ router.post('/recipe/update/:id', auth, async (req, res) => {
     }
 })
 
+//Add Like To Recipe
+router.post('/like/recipe/:id', auth, async (req, res) => {
+    try {
+        const recipe = await Recipe.findById(req.params.id)
+    
+        if(!recipe) {
+            throw new Error('Такого рецепта не существует!')
+        }
+
+        recipe.likes += 1
+        await recipe.save()
+
+        res.status(200).send(recipe)
+
+    } catch (e) {
+        res.status(500).send(e.message)
+    }
+})
+
+//Dislike Recipe
+router.post('/dislike/recipe/:id', auth, async(req, res) => {
+    try{
+        const recipe = await Recipe.findById(req.params.id)
+    
+        if(!recipe) {
+            throw new Error('Такого рецепта не сущуствует!')
+        }
+        
+        if(recipe.likes > 0) {
+            recipe.likes -= 1
+        }
+        await recipe.save()
+    
+        res.status(200).send(recipe)
+
+    } catch (e) {
+        res.status(500).send('Что то пошло не так!')
+    }
+})
+
 //Recipes of authenticated user
 router.get('/my/recipes', auth, async (req, res) => {
     try {
