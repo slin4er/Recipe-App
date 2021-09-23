@@ -33,7 +33,10 @@ const userSchema = new mongoose.Schema({
             type: String,
             rquired: true
         }
-    }]
+    }],
+    avatar: {
+        type: Buffer
+    }
 })
 
 userSchema.statics.findByCredentials = async (login, password) => {
@@ -48,6 +51,17 @@ userSchema.statics.findByCredentials = async (login, password) => {
     }
 
     return user
+}
+
+userSchema.methods.toJSON = function() {
+    const user = this
+    const userObject = user.toObject()
+
+    delete userObject.password
+    delete userObject.tokens
+    delete userObject.avatar
+
+    return userObject
 }
 
 userSchema.methods.generateAuthToken = async function() {

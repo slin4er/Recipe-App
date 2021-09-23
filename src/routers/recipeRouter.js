@@ -3,6 +3,8 @@ const router = express.Router()
 const auth = require('../middleware/auth')
 const Recipe = require('../models/recipe')
 const Comment = require('../models/comment')
+const upload = require('../middleware/upload')
+const sharp = require('sharp')
 
 //req.user._id is the id of authenticated user whic is set in the header
 //New Recipe
@@ -94,6 +96,38 @@ router.post('/like/recipe/:id', auth, async (req, res) => {
 
     } catch (e) {
         res.status(500).send(e.message)
+    }
+})
+
+router.post('/recipe/photo/:id', auth, upload.single('Загрузить фото'), async (req, res) => {
+    const recipe = await Recipe.findById(req.params.id)
+
+    if(!recipe) {
+        return ('Такого рецепта нет!')
+    }
+
+    const buffer = await sharp(req.file.buffer).resize({width: 250, height: 250}).png().toBuffer()
+    recipe.photo = buffer
+    await recipe.save()
+    res.status(200).send(recipe)
+}, (error, req, res, next) => {
+    res.status(400).send({error: error.message})
+})
+
+router.post('/recipe/photo/delete/:id', auth, async (req, res) => {
+    try {
+        const recipe = await Recipe.findById(req.params.id)
+    
+        if(!recipe) {
+            throw new Error('Такого рецепта не существует!')
+        }
+
+        recipe.photo = undefined
+        recipe.save()
+        res.status(200).send()
+
+    } catch (e) {
+        res.status(400).send(e.message)
     }
 })
 

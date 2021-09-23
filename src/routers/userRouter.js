@@ -5,6 +5,8 @@ const express = require('express')
 const auth = require('../middleware/auth')
 const router = express.Router()
 const bcrypt = require('bcryptjs')
+const upload = require('../middleware/upload')
+const sharp = require('sharp')
 
 //req.user._id is the id of authenticated user whic is set in the header
 //New User
@@ -69,12 +71,33 @@ router.post('/delete/user', auth, async (req, res) => {
 })
 
 //All Users
-router.get('/users', auth, async (req, res) => {
-    try{
-        const users = await User.find({})
-        res.status(200).send(users)
+router.post('/user/me/avatar', auth, upload.single('Загрузить фото'), async(req ,res) => {
+    const buffer = await sharp(req.file.buffer).resize({width: 250, height: 250}).png().toBuffer()
+    req.user.avatar = buffer
+    await req.user.save()
+    res.status(200).send()
+}, (error, req, res, next) => {
+    res.status(400).send({error: error.message})
+})
+
+router.post('/user/me/delete/avatar',auth, async (req, res) => {
+    try{ 
+        req.user.avatar = undefined
+        await req.user.save()
+        res.status(200).send()
+
     } catch (e) {
-        res.status(500).send('Что то пошло не так!')
+        res.status(400).send(e.message)
+    }
+})
+
+router.get('/user/avatar', auth, async (req, res) => {
+    try{
+        res.set('Content-Type', 'image/png')
+        res.send(req.user.avatar)
+
+    } catch (e) {
+        res.status(400).send(e.message)
     }
 })
 
