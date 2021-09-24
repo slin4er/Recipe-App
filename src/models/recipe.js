@@ -25,19 +25,12 @@ const recipeSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true
     },
-    photo: {
-        type: Buffer
-    }
+    photos: [{
+        photo: {
+            type: Buffer
+        }
+    }]
 })
-
-recipeSchema.methods.toJSON = function () {
-    const recipe = this
-    const recipeObject = recipe.toObject()
-
-    delete recipeObject.photo
-    
-    return recipeObject
-}
 
 const Recipe = mongoose.model('recipes', recipeSchema)
 

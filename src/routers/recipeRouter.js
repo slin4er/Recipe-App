@@ -107,30 +107,52 @@ router.post('/recipe/photo/:id', auth, upload.single('Загрузить фот�
     }
 
     const buffer = await sharp(req.file.buffer).resize({width: 250, height: 250}).png().toBuffer()
-    recipe.photo = buffer
+    recipe.photos = recipe.photos.concat({photo: buffer})
     await recipe.save()
     res.status(200).send(recipe)
 }, (error, req, res, next) => {
     res.status(400).send({error: error.message})
 })
 
-router.post('/recipe/photo/delete/:id', auth, async (req, res) => {
+router.post('/recipe/:recipeId/photo/delete/:photoId', auth, async (req, res) => {
     try {
-        const recipe = await Recipe.findById(req.params.id)
+        const recipe = await Recipe.findById(req.params.recipeId)
     
         if(!recipe) {
             throw new Error('Такого рецепта не существует!')
         }
 
-        recipe.photo = undefined
-        recipe.save()
-        res.status(200).send()
+        recipe.photos = recipe.photos.filter((photo) => !photo._id.equals(req.params.photoId))
+        await recipe.save()
+        res.status(200).send('Удалено!')
 
     } catch (e) {
         res.status(400).send(e.message)
     }
 })
 
+router.get('/recipe/:recipeId/photo/:photoId', auth, async(req, res) => {
+    try{
+        const recipe = await Recipe.findById(req.params.recipeId)
+    
+        if(!recipe) {
+            throw new Error('Такого рецепта не сущуствует')
+        }
+
+        const photo = recipe.photos.filter((photo) => photo._id.equals(req.params.photoId))
+
+        if(photo.length === 0) {
+            throw new Error('Такой фото не существует!')
+        }
+
+        const photoBuffer = photo[0].photo
+        res.set('Content-Type', 'image/png')
+        res.send(photoBuffer)
+
+    } catch (e) {
+        res.status(500).send(e.message)
+    }
+})
 //Recipes of authenticated user
 router.get('/my/recipes', auth, async (req, res) => {
     try {
