@@ -70,7 +70,7 @@ router.post('/delete/user', auth, async (req, res) => {
     }
 })
 
-//All Users
+//User Avatar
 router.post('/user/me/avatar', auth, upload.single('Загрузить фото'), async(req ,res) => {
     const buffer = await sharp(req.file.buffer).resize({width: 250, height: 250}).png().toBuffer()
     req.user.avatar = buffer
